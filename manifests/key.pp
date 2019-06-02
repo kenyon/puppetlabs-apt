@@ -29,9 +29,6 @@
 #   Specifies a keyserver to provide the GPG key. Valid options: a string containing a domain name or a full URL (http://, https://,
 #   hkp:// or hkps://). The hkps:// protocol is currently only supported on Ubuntu 18.04.
 #
-# @param weak_ssl
-#    Specifies whether strict SSL verification on a https URL should be disabled. Valid options: true or false.
-#
 # @param options
 #   Passes additional options to `apt-key adv --keyserver-options`.
 #
@@ -41,7 +38,6 @@ define apt::key (
   Optional[String] $content                                                                          = undef,
   Optional[Pattern[/\Ahttps?:\/\//, /\Aftp:\/\//, /\A\/\w+/]] $source                                = undef,
   Pattern[/\A((hkp|hkps|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,5})?$/] $server = $::apt::keyserver,
-  Boolean $weak_ssl                                                                                  = false,
   Optional[String] $options                                                                          = undef,
   ) {
 
@@ -53,14 +49,13 @@ define apt::key (
 
       if !defined(Anchor["apt_key ${id} present"]) {
         apt_key { $title:
-          ensure   => present,
-          refresh  => $ensure == 'refreshed',
-          id       => $id,
-          source   => $source,
-          content  => $content,
-          server   => $server,
-          weak_ssl => $weak_ssl,
-          options  => $options,
+          ensure  => present,
+          refresh => $ensure == 'refreshed',
+          id      => $id,
+          source  => $source,
+          content => $content,
+          server  => $server,
+          options => $options,
         } -> anchor { "apt_key ${id} present": }
 
         case $facts['os']['name'] {
@@ -88,13 +83,12 @@ define apt::key (
 
       if !defined(Anchor["apt_key ${id} absent"]){
         apt_key { $title:
-          ensure   => $ensure,
-          id       => $id,
-          source   => $source,
-          content  => $content,
-          server   => $server,
-          weak_ssl => $weak_ssl,
-          options  => $options,
+          ensure  => $ensure,
+          id      => $id,
+          source  => $source,
+          content => $content,
+          server  => $server,
+          options => $options,
         } -> anchor { "apt_key ${id} absent": }
       }
     }
